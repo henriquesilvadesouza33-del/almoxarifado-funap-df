@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Almoxarifado Funap DF</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ========== TELA DE LOGIN ========== -->
+<div id="loginScreen" class="screen active">
+  <div class="login-bg">
+    <div class="login-overlay"></div>
+  </div>
+  <div class="login-container">
+    <div class="login-logo">
+      <div class="shield-icon">
+        <i class="fas fa-shield-alt"></i>
+        <i class="fas fa-check"></i>
+      </div>
+      <h1>Almoxarifado<br>Funap DF</h1>
+      <p class="login-subtitle">Controle patrimonial com transparência</p>
+    </div>
+    <div class="login-form">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="loginUser" placeholder="Usuário" value="admin">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="loginPass" placeholder="Senha" value="">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">
+        <i class="fas fa-sign-in-alt"></i> Entrar no sistema
+      </button>
+      <p class="login-error" id="loginError"></p>
+    </div>
+    <div class="login-footer">
+      <div class="footer-logos">
+        <span class="gdf-badge">GDF</span>
+        <span class="funap-badge">FUNAP</span>
+      </div>
+      <p class="footer-text">Fundação de Apoio ao Trabalhador Preso (DF)</p>
+      <p class="developer-credit">Desenvolvido por Henrique Silva de Souza</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== APP PRINCIPAL ========== -->
+<div id="appScreen" class="screen">
+  
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="mini-shield">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <span class="header-title">Almoxarifado Funap DF</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-icon" onclick="showNotifications()" title="Notificações">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notifBadge">0</span>
+      </button>
+      <button class="btn-icon" onclick="doLogout()" title="Sair">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Páginas -->
+  <div class="page-container">
+
+    <!-- === PÁGINA: DASHBOARD === -->
+    <div id="pageHome" class="page active">
+      <div class="page-content">
+        <div class="welcome-section">
+          <h2>Olá, <span id="userName">Administrador</span></h2>
+          <p class="welcome-date" id="currentDate"></p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fas fa-boxes-stacked"></i></div>
+            <div class="stat-value" id="statMateriais">0</div>
+            <div class="stat-label">Materiais</div>
+          </div>
+          <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fas fa-cubes"></i></div>
+            <div class="stat-value" id="statUnidades">0</div>
+            <div class="stat-label">Unidades</div>
+          </div>
+          <div class="stat-card stat-orange">
+            <div class="stat-icon"><i class="fas fa-tags"></i></div>
+            <div class="stat-value" id="statCategorias">0</div>
+            <div class="stat-label">Categorias</div>
+          </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-icon"><i class="fas fa-exchange-alt"></i></div>
+            <div class="stat-value" id="statMovimentos">0</div>
+            <div class="stat-label">Movimentos</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3><i class="fas fa-bolt"></i> Ações rápidas</h3>
+        </div>
+        <div class="quick-actions">
+          <button class="quick-btn" onclick="navigateTo('oficio')">
+            <div class="quick-icon"><i class="fas fa-camera"></i></div>
+            <span>Ler ofício</span>
+          </button>
+          <button class="quick-btn" onclick="showMovimentacao()">
+            <div class="quick-icon"><i class="fas fa-arrow-right-from-bracket"></i></div>
+            <span>Registrar saída</span>
+          </button>
+          <button class="quick-btn" onclick="navigateTo('relatorios')">
+            <div class="quick-icon"><i class="fas fa-chart-bar"></i></div>
+            <span>Ver relatórios</span>
+          </button>
+          <button class="quick-btn" onclick="showNovoMaterial()">
+            <div class="quick-icon"><i class="fas fa-plus-circle"></i></div>
+            <span>Novo material</span>
+          </button>
+        </div>
+
+        <div class="section-title">
+          <h3><i class="fas fa-clock-rotate-left"></i> Últimas movimentações</h3>
+        </div>
+        <div id="recentMovements" class="recent-list">
+          <p class="empty-msg">Nenhuma movimentação registrada</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- === PÁGINA: ESTOQUE === -->
+    <div id="pageEstoque" class="page">
+      <div class="page-content">
+        <div class="page-header-bar">
+          <h2><i class="fas fa-warehouse"></i> Estoque</h2>
+          <button class="btn-small" onclick="showNovoMaterial()">
+            <i class="fas fa-plus"></i> Novo
+          </button>
+        </div>
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchEstoque" placeholder="Buscar material..." oninput="filterEstoque()">
+        </div>
+        <div class="filter-row">
+          <select id="filterCategoria" onchange="filterEstoque()">
+            <option value="">Todas categorias</option>
+          </select>
+        </div>
+        <div id="estoqueList" class="material-list">
+          <p class="empty-msg">Nenhum material cadastrado</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- === PÁGINA: MOVIMENTAÇÕES === -->
+    <div id="pageMovimentos" class="page">
+      <div class="page-content">
+        <div class="page-header-bar">
+          <h2><i class="fas fa-exchange-alt"></i> Movimentação</h2>
+          <button class="btn-small btn-entry" onclick="showMovimentacao('entrada')">
+            <i class="fas fa-arrow-down"></i> Entrada
+          </button>
+          <button class="btn-small btn-exit" onclick="showMovimentacao('saida')">
+            <i class="fas fa-arrow-up"></i> Saída
+          </button>
+        </div>
+        <p class="page-description">Registre entradas e saídas com rastreabilidade completa</p>
+        
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchMovimentos" placeholder="Buscar movimentação..." oninput="filterMovimentos()">
+        </div>
+
+        <div class="filter-row">
+          <select id="filterTipoMov" onchange="filterMovimentos()">
+            <option value="">Todos tipos</option>
+            <option value="entrada">Entradas</option>
+            <option value="saida">Saídas</option>
+          </select>
+          <input type="date" id="filterDataMov" onchange="filterMovimentos()" placeholder="Data">
+        </div>
+
+        <div id="movimentosList" class="movement-list">
+          <p class="empty-msg">Nenhuma movimentação registrada</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- === PÁGINA: OFÍCIO === -->
+    <div id="pageOficio" class="page">
+      <div class="page-content">
+        <div class="page-header-bar">
+          <h2><i class="fas fa-file-lines"></i> Ler Ofício</h2>
+        </div>
+        <p class="page-description">Fotografe o documento e revise os dados extraídos pela IA</p>
+
+        <div class="oficio-capture-area">
+          <div class="camera-zone" id="cameraZone" onclick="captureDocument()">
+            <i class="fas fa-camera camera-big-icon"></i>
+            <p class="camera-text">Capturar documento</p>
+            <p class="camera-hint">Toque para fotografar o ofício</p>
+          </div>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none" onchange="handleFileCapture(event)">
+
+        <!-- Preview da imagem -->
+        <div id="imagePreview" class="image-preview" style="display:none">
+          <img id="previewImg" src="">
+          <button class="btn-small btn-danger" onclick="clearCapture()"><i class="fas fa-trash"></i> Remover</button>
+        </div>
+
+        <!-- Resultado da IA -->
+        <div id="aiResult" class="ai-result" style="display:none">
+          <div class="ai-header">
+            <i class="fas fa-robot"></i>
+            <h3>Dados extraídos pela IA</h3>
+          </div>
+          <div class="ai-fields">
+            <div class="ai-field">
+              <label>Órgão de origem:</label>
+              <input type="text" id="aiOrgao" placeholder="Ex: Polícia Civil do DF">
+            </div>
+            <div class="ai-field">
+              <label>Número do ofício:</label>
+              <input type="text" id="aiNumOficio" placeholder="Ex: OF-2026/001">
+            </div>
+            <div class="ai-field">
+              <label>Data do ofício:</label>
+              <input type="date" id="aiDataOficio">
+            </div>
+            <div class="ai-field">
+              <label>Responsável pela entrega:</label>
+              <input type="text" id="aiResponsavelEntrega" placeholder="Nome de quem entregou">
+            </div>
+          </div>
+          <div class="ai-items-header">
+            <h4><i class="fas fa-list"></i> Itens doados</h4>
+            <button class="btn-small" onclick="addOficioItem()"><i class="fas fa-plus"></i> Item</button>
+          </div>
+          <div id="oficioItemsList" class="oficio-items-list">
+            <!-- Itens serão adicionados aqui -->
+          </div>
+          <div class="ai-actions">
+            <button class="btn-primary" onclick="registerOficio()">
+              <i class="fas fa-check-circle"></i> Registrar entrada dos materiais
+            </button>
+            <button class="btn-secondary" onclick="emitirRecebimento()">
+              <i class="fas fa-file-pdf"></i> Emitir Termo de Recebimento
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === PÁGINA: RELATÓRIOS === -->
+    <div id="pageRelatorios" class="page">
+      <div class="page-content">
+        <div class="page-header-bar">
+          <h2><i class="fas fa-chart-pie"></i> Relatórios</h2>
+        </div>
+
+        <div class="report-summary">
+          <div class="report-card entry-card">
+            <i class="fas fa-arrow-down"></i>
+            <span class="report-val" id="relEntradas">0</span>
+            <span class="report-lbl">Entradas</span>
+          </div>
+          <div class="report-card exit-card">
+            <i class="fas fa-arrow-up"></i>
+            <span class="report-val" id="relSaidas">0</span>
+            <span class="report-lbl">Saídas</span>
+          </div>
+        </div>
+
+        <div class="report-options">
+          <button class="report-btn" onclick="showFechamentoDiario()">
+            <div class="report-btn-icon"><i class="fas fa-calendar-day"></i></div>
+            <div class="report-btn-text">
+              <strong>Fechamento diário</strong>
+              <span>Resumo do dia atual</span>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="report-btn" onclick="showFechamentoMensal()">
+            <div class="report-btn-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="report-btn-text">
+              <strong>Fechamento mensal</strong>
+              <span>Resumo do mês atual</span>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="report-btn" onclick="showExtratoGeral()">
+            <div class="report-btn-icon"><i class="fas fa-list-alt"></i></div>
+            <div class="report-btn-text">
+              <strong>Extrato geral</strong>
+              <span>Todas movimentações</span>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="report-btn" onclick="showPlanilha()">
+            <div class="report-btn-icon"><i class="fas fa-table"></i></div>
+            <div class="report-btn-text">
+              <strong>Planilha completa</strong>
+              <span>Estoque + Movimentações</span>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="report-btn" onclick="emitirRecebimento()">
+            <div class="report-btn-icon"><i class="fas fa-file-signature"></i></div>
+            <div class="report-btn-text">
+              <strong>Termo de recebimento</strong>
+              <span>Documento oficial</span>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="report-btn" onclick="showRelatorioPatrimonio()">
+            <div class="report-btn-icon"><i class="fas fa-building"></i></div>
+            <div class="report-btn-text">
+              <strong>Relatório patrimonial</strong>
+              <span>Visão geral do patrimônio</span>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-container -->
+
+  <!-- Barra de navegação inferior -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="home" onclick="navigateTo('home')">
+      <i class="fas fa-home"></i>
+      <span>Início</span>
+    </button>
+    <button class="nav-btn" data-page="estoque" onclick="navigateTo('estoque')">
+      <i class="fas fa-warehouse"></i>
+      <span>Estoque</span>
+    </button>
+    <button class="nav-btn" data-page="movimentos" onclick="navigateTo('movimentos')">
+      <i class="fas fa-exchange-alt"></i>
+      <span>Movimentos</span>
+    </button>
+    <button class="nav-btn" data-page="oficio" onclick="navigateTo('oficio')">
+      <i class="fas fa-file-lines"></i>
+      <span>Ofício</span>
+    </button>
+    <button class="nav-btn" data-page="relatorios" onclick="navigateTo('relatorios')">
+      <i class="fas fa-chart-pie"></i>
+      <span>Relatórios</span>
+    </button>
+  </nav>
+
+</div><!-- /appScreen -->
+
+
+<!-- ========== MODAIS ========== -->
+
+<!-- Modal: Novo Material -->
+<div id="modalNovoMaterial" class="modal">
+  <div class="modal-overlay" onclick="closeModal('modalNovoMaterial')"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-plus-circle"></i> Novo Material</h3>
+      <button class="btn-close" onclick="closeModal('modalNovoMaterial')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nome do material *</label>
+        <input type="text" id="matNome" placeholder="Ex: Cola branca">
+      </div>
+      <div class="form-group">
+        <label>Código / Patrimônio</label>
+        <input type="text" id="matCodigo" placeholder="Ex: PAT-2026-001">
+      </div>
+      <div class="form-group">
+        <label>Categoria *</label>
+        <select id="matCategoria">
+          <option value="">Selecione...</option>
+          <option value="Limpeza">Limpeza</option>
+          <option value="Ferramentas">Ferramentas</option>
+          <option value="Construção">Construção</option>
+          <option value="Uniformes">Uniformes</option>
+          <option value="Escritório">Escritório</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Móveis">Móveis</option>
+          <option value="Alimentação">Alimentação</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Quantidade *</label>
+          <input type="number" id="matQuantidade" placeholder="0" min="0">
+        </div>
+        <div class="form-group half">
+          <label>Unidade</label>
+          <select id="matUnidade">
+            <option value="un">Unidade</option>
+            <option value="cx">Caixa</option>
+            <option value="pct">Pacote</option>
+            <option value="kg">Quilo</option>
+            <option value="lt">Litro</option>
+            <option value="m">Metro</option>
+            <option value="m2">m²</option>
+            <option value="rl">Rolo</option>
+            <option value="dz">Dúzia</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Localização no almoxarifado</label>
+        <input type="text" id="matLocalizacao" placeholder="Ex: Prateleira A3">
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea id="matObs" placeholder="Detalhes adicionais..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalNovoMaterial')">Cancelar</button>
+      <button class="btn-primary" onclick="saveMaterial()">
+        <i class="fas fa-save"></i> Salvar material
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Movimentação -->
+<div id="modalMovimentacao" class="modal">
+  <div class="modal-overlay" onclick="closeModal('modalMovimentacao')"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="movModalTitle"><i class="fas fa-exchange-alt"></i> Movimentação</h3>
+      <button class="btn-close" onclick="closeModal('modalMovimentacao')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="mov-type-toggle">
+        <button class="toggle-btn" id="toggleEntrada" onclick="setMovType('entrada')">
+          <i class="fas fa-arrow-down"></i> Entrada
+        </button>
+        <button class="toggle-btn active" id="toggleSaida" onclick="setMovType('saida')">
+          <i class="fas fa-arrow-up"></i> Saída
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label>Material *</label>
+        <select id="movMaterial">
+          <option value="">Selecione o material...</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Quantidade *</label>
+          <input type="number" id="movQuantidade" placeholder="0" min="1">
+        </div>
+        <div class="form-group half">
+          <label>Data</label>
+          <input type="date" id="movData">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Setor / Destino *</label>
+        <input type="text" id="movDestino" placeholder="Ex: Setor de Construção - Presídio">
+      </div>
+      <div class="form-group">
+        <label>Quem recebeu *</label>
+        <input type="text" id="movRecebedor" placeholder="Nome completo">
+      </div>
+      <div class="form-group">
+        <label>Finalidade *</label>
+        <select id="movFinalidade">
+          <option value="">Selecione...</option>
+          <option value="Uso interno">Uso interno</option>
+          <option value="Manutenção">Manutenção</option>
+          <option value="Construção">Construção</option>
+          <option value="Limpeza">Limpeza</option>
+          <option value="Doação">Doação</option>
+          <option value="Descarte">Descarte</option>
+          <option value="Transferência">Transferência</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Responsável pelo lançamento</label>
+        <input type="text" id="movResponsavel" placeholder="Nome">
+      </div>
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea id="movObs" placeholder="Detalhes adicionais..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalMovimentacao')">Cancelar</button>
+      <button class="btn-primary" id="btnSaveMov" onclick="saveMovimentacao()">
+        <i class="fas fa-save"></i> Registrar movimentação
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Relatório / Fechamento -->
+<div id="modalRelatorio" class="modal">
+  <div class="modal-overlay" onclick="closeModal('modalRelatorio')"></div>
+  <div class="modal-content modal-large">
+    <div class="modal-header">
+      <h3 id="relModalTitle"><i class="fas fa-chart-bar"></i> Relatório</h3>
+      <button class="btn-close" onclick="closeModal('modalRelatorio')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="relModalBody">
+      <!-- Conteúdo dinâmico -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalRelatorio')">Fechar</button>
+      <button class="btn-primary" onclick="printRelatorio()">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+      <button class="btn-secondary" onclick="exportCSV()">
+        <i class="fas fa-file-csv"></i> Exportar CSV
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Termo de Recebimento -->
+<div id="modalRecebimento" class="modal">
+  <div class="modal-overlay" onclick="closeModal('modalRecebimento')"></div>
+  <div class="modal-content modal-large">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-signature"></i> Termo de Recebimento</h3>
+      <button class="btn-close" onclick="closeModal('modalRecebimento')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="recebimentoBody">
+      <!-- Conteúdo dinâmico -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalRecebimento')">Fechar</button>
+      <button class="btn-primary" onclick="printRecebimento()">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalhes do Material -->
+<div id="modalDetalhes" class="modal">
+  <div class="modal-overlay" onclick="closeModal('modalDetalhes')"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-box-open"></i> Detalhes do Material</h3>
+      <button class="btn-close" onclick="closeModal('modalDetalhes')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="detalhesBody">
+      <!-- Conteúdo dinâmico -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modalDetalhes')">Fechar</button>
+      <button class="btn-small btn-danger" onclick="deleteMaterial()">
+        <i class="fas fa-trash"></i> Excluir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
